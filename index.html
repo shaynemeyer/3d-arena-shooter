@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Arena Shooter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Game Canvas -->
+  <canvas id="game-canvas"></canvas>
+
+  <!-- HUD Overlay -->
+  <div id="hud">
+    <!-- Health Bar (Bottom Left) -->
+    <div id="health-container">
+      <div id="health-label">Health</div>
+      <div id="health-bar-bg">
+        <div id="health-bar"></div>
+      </div>
+    </div>
+
+    <!-- Ammo Counter (Bottom Right) -->
+    <div id="ammo-container">
+      <div id="ammo-text">Ammo: 30/30</div>
+    </div>
+
+    <!-- Crosshair (Center) -->
+    <div id="crosshair">
+      <div class="crosshair-line horizontal"></div>
+      <div class="crosshair-line vertical"></div>
+    </div>
+
+    <!-- Enemy Health Bar (Top Center) -->
+    <div id="enemy-health-container">
+      <div id="enemy-health-label">Enemy</div>
+      <div id="enemy-health-bar-bg">
+        <div id="enemy-health-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over Overlay -->
+  <div id="game-over-overlay" class="hidden">
+    <div id="game-over-content">
+      <h1 id="game-over-title">Game Over</h1>
+      <p id="game-over-message"></p>
+      <button id="restart-button">Restart</button>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
