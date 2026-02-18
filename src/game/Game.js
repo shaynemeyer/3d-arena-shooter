@@ -43,7 +43,7 @@ export class Game {
     );
 
     this.enemy = new Enemy(
-      { x: 15, y: 0, z: 15 }, // Starting position
+      { x: 0, y: 0, z: -18 }, // Opposite side of arena from player
       this.scene.getScene(),
       this.audioManager
     );

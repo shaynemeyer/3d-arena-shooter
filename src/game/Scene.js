@@ -118,14 +118,14 @@ export class Scene {
       let geometry;
       if (index % 2 === 0) {
         // Box
-        geometry = new THREE.BoxGeometry(2, 1.5, 2);
+        geometry = new THREE.BoxGeometry(2, 2, 2);
       } else {
         // Cylinder
-        geometry = new THREE.CylinderGeometry(1, 1, 1.5, 8);
+        geometry = new THREE.CylinderGeometry(1, 1, 2, 8);
       }
 
       const cover = new THREE.Mesh(geometry, coverMaterial);
-      cover.position.set(pos.x, 0.75, pos.z);
+      cover.position.set(pos.x, 1, pos.z);
       cover.castShadow = true;
       cover.receiveShadow = true;
       this.scene.add(cover);

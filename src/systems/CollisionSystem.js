@@ -61,9 +61,16 @@ export class CollisionSystem {
         projectile.deactivate();
       }
 
-      // Check collision with cover objects
+      // Check collision with cover objects (swept to prevent tunneling)
       coverObjects.forEach(cover => {
-        if (this.sphereIntersectsBox(projectile.position, 0.1, cover.position, 2, 1.5, 2)) {
+        const p = cover.geometry.parameters;
+        const w = p.width  ?? p.radiusTop * 2;
+        const h = p.height;
+        const d = p.depth  ?? p.radiusTop * 2;
+        if (this.sweepSphereAgainstBox(
+          projectile.previousPosition, projectile.position, 0.1,
+          cover.position, w, h, d
+        )) {
           projectile.deactivate();
         }
       });
@@ -116,22 +123,15 @@ export class CollisionSystem {
   }
 
   checkProjectileWallCollision(projectile, arena) {
-    const pos = projectile.position;
-    const radius = 0.1;
-
     for (const wall of arena.walls) {
-      const wallPos = wall.position;
-      const wallSize = {
-        x: wall.geometry.parameters.width / 2,
-        y: wall.geometry.parameters.height / 2,
-        z: wall.geometry.parameters.depth / 2
-      };
-
-      if (this.sphereIntersectsBox(pos, radius, wallPos, wallSize.x * 2, wallSize.y * 2, wallSize.z * 2)) {
+      const p = wall.geometry.parameters;
+      if (this.sweepSphereAgainstBox(
+        projectile.previousPosition, projectile.position, 0.1,
+        wall.position, p.width, p.height, p.depth
+      )) {
         return true;
       }
     }
-
     return false;
   }
 
@@ -163,6 +163,33 @@ export class CollisionSystem {
     const distanceSquared = dx * dx + dy * dy + dz * dz;
     const radiusSum = sphereRadius + pointRadius;
     return distanceSquared <= radiusSum * radiusSum;
+  }
+
+  // Helper: Swept-sphere vs AABB — checks the full path from startPos to endPos.
+  // Uses the slab method on a Minkowski-expanded box (box grown by sphere radius on all sides).
+  sweepSphereAgainstBox(startPos, endPos, radius, boxPos, boxWidth, boxHeight, boxDepth) {
+    const ex = boxWidth  / 2 + radius;
+    const ey = boxHeight / 2 + radius;
+    const ez = boxDepth  / 2 + radius;
+    const bx = boxPos.x, by = boxPos.y || 0, bz = boxPos.z;
+    const sx = startPos.x, sy = startPos.y || 0, sz = startPos.z;
+    const dx = (endPos.x || 0) - sx;
+    const dy = (endPos.y || 0) - sy;
+    const dz = (endPos.z || 0) - sz;
+
+    let tmin = 0, tmax = 1;
+    for (const [s, d, b, e] of [[sx, dx, bx, ex], [sy, dy, by, ey], [sz, dz, bz, ez]]) {
+      if (Math.abs(d) < 1e-10) {
+        if (s < b - e || s > b + e) return false;
+      } else {
+        const t1 = (b - e - s) / d;
+        const t2 = (b + e - s) / d;
+        tmin = Math.max(tmin, Math.min(t1, t2));
+        tmax = Math.min(tmax, Math.max(t1, t2));
+        if (tmin > tmax) return false;
+      }
+    }
+    return tmin <= tmax;
   }
 
   // Helper: Check if sphere intersects with AABB (box)

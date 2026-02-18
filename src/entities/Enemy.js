@@ -33,20 +33,70 @@ export class Enemy {
   }
 
   createMesh() {
-    const geometry = new THREE.BoxGeometry(1, 2, 1);
-    const material = new THREE.MeshStandardMaterial({
-      color: 0xff0000,
-      emissive: 0x330000,
-      roughness: 0.7,
-      metalness: 0.3
+    this.mesh = new THREE.Group();
+
+    const skinMat = () => new THREE.MeshStandardMaterial({
+      color: 0x44bb66,
+      emissive: 0x0a2a11,
+      roughness: 0.6,
+      metalness: 0.2
     });
 
-    this.mesh = new THREE.Mesh(geometry, material);
-    this.mesh.position.copy(this.position);
-    this.mesh.position.y = 1; // Center at ground level
-    this.mesh.castShadow = true;
-    this.mesh.receiveShadow = true;
+    // Torso
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.75, 1.0, 0.5), skinMat());
+    body.position.y = 0;
+    body.castShadow = true;
+    body.receiveShadow = true;
+    this.mesh.add(body);
 
+    // Wide alien head (classic inverted-teardrop silhouette)
+    const head = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.7, 0.75), skinMat());
+    head.position.y = 0.85;
+    head.castShadow = true;
+    this.mesh.add(head);
+
+    // Glowing yellow eyes
+    const eyeMat = new THREE.MeshStandardMaterial({
+      color: 0xffee00,
+      emissive: 0xffaa00,
+      emissiveIntensity: 1.5,
+      roughness: 0.1
+    });
+    const eyeGeo = new THREE.SphereGeometry(0.1, 8, 6);
+    [-0.22, 0.22].forEach(x => {
+      const eye = new THREE.Mesh(eyeGeo, eyeMat);
+      eye.position.set(x, 0.9, -0.38);
+      this.mesh.add(eye);
+    });
+
+    // Antennae stalks
+    const antGeo = new THREE.CylinderGeometry(0.025, 0.025, 0.35);
+    [[-0.2, 0.3], [0.2, -0.3]].forEach(([x, rz]) => {
+      const ant = new THREE.Mesh(antGeo, skinMat());
+      ant.position.set(x, 1.38, 0);
+      ant.rotation.z = rz;
+      this.mesh.add(ant);
+    });
+
+    // Glowing purple antenna tips
+    const tipMat = new THREE.MeshStandardMaterial({
+      color: 0xcc44ff,
+      emissive: 0xaa00ff,
+      emissiveIntensity: 2.0,
+      roughness: 0.1
+    });
+    const tipGeo = new THREE.SphereGeometry(0.06, 8, 6);
+    [[-0.27, 1.55], [0.27, 1.55]].forEach(([x, y]) => {
+      const tip = new THREE.Mesh(tipGeo, tipMat);
+      tip.position.set(x, y, 0);
+      this.mesh.add(tip);
+    });
+
+    // Track body parts for damage flash
+    this.bodyParts = [body, head];
+
+    this.mesh.position.copy(this.position);
+    this.mesh.position.y = 1;
     this.scene.add(this.mesh);
   }
 
@@ -91,10 +141,10 @@ export class Enemy {
     }
 
     // Flash effect
-    this.mesh.material.emissive.setHex(0xff0000);
+    this.bodyParts.forEach(p => p.material.emissive.setHex(0xff0000));
     setTimeout(() => {
-      if (this.mesh && this.mesh.material) {
-        this.mesh.material.emissive.setHex(0x330000);
+      if (this.mesh) {
+        this.bodyParts.forEach(p => p.material.emissive.setHex(0x0a2a11));
       }
     }, 100);
 

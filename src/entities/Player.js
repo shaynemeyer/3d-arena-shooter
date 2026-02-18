@@ -59,6 +59,9 @@ export class Player {
   }
 
   handleMovement(deltaTime) {
+    const turnSpeed = 2.0; // radians per second
+    this.rotation += this.inputManager.getTurnDirection() * turnSpeed * deltaTime;
+
     const movementInput = this.inputManager.getMovementVector();
 
     if (movementInput.length() > 0) {

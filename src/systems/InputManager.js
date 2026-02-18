@@ -26,26 +26,20 @@ export class InputManager {
   getMovementVector() {
     const movement = new THREE.Vector3(0, 0, 0);
 
-    // Arrow keys for movement
-    if (this.isKeyPressed('ArrowUp')) {
-      movement.z = -1; // Forward
-    }
-    if (this.isKeyPressed('ArrowDown')) {
-      movement.z = 1; // Backward
-    }
-    if (this.isKeyPressed('ArrowLeft')) {
-      movement.x = -1; // Strafe left
-    }
-    if (this.isKeyPressed('ArrowRight')) {
-      movement.x = 1; // Strafe right
-    }
+    if (this.isKeyPressed('ArrowUp')   || this.isKeyPressed('w')) movement.z = -1; // Forward
+    if (this.isKeyPressed('ArrowDown') || this.isKeyPressed('s')) movement.z =  1; // Backward
+    if (this.isKeyPressed('a')) movement.x = -1; // Strafe left
+    if (this.isKeyPressed('d')) movement.x =  1; // Strafe right
 
-    // Normalize to prevent faster diagonal movement
-    if (movement.length() > 0) {
-      movement.normalize();
-    }
-
+    if (movement.length() > 0) movement.normalize();
     return movement;
+  }
+
+  // Returns -1 (turn left), 1 (turn right), or 0
+  getTurnDirection() {
+    if (this.isKeyPressed('ArrowLeft'))  return -1;
+    if (this.isKeyPressed('ArrowRight')) return  1;
+    return 0;
   }
 
   isShootPressed() {

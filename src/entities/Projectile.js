@@ -3,6 +3,7 @@ import * as THREE from 'three';
 export class Projectile {
   constructor(position, direction, owner) {
     this.position = position.clone();
+    this.previousPosition = position.clone();
     this.velocity = direction.clone().normalize().multiplyScalar(20); // 20 units/second
     this.owner = owner; // 'player' or 'enemy'
     this.damage = 20;
@@ -45,6 +46,9 @@ export class Projectile {
       this.active = false;
       return;
     }
+
+    // Save position before moving (used for swept collision)
+    this.previousPosition.copy(this.position);
 
     // Update position
     this.position.x += this.velocity.x * deltaTime;
